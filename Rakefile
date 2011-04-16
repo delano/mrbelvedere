@@ -21,7 +21,7 @@ begin
     gem.version = "#{config[:MAJOR]}.#{config[:MINOR]}.#{config[:PATCH]}"
     gem.name = name
     gem.rubyforge_project = gem.name
-    gem.summary = "Basic operational stats for web apps."
+    gem.summary = "Basic operational stats for web apps. IN PROGRESS"
     gem.description = gem.summary
     gem.email = "delano@solutious.com"
     gem.homepage = "http://github.com/delano/mrbelvedere"
