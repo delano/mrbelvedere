@@ -16,6 +16,8 @@ require 'familia'
 require 'gibbler'
 require 'useragent'
 require 'addressable/uri'
+require 'bluth'
+
 
 class MrBelvedere < Storable
   module VERSION
@@ -32,7 +34,7 @@ class MrBelvedere < Storable
 end
 
 class MrBelvedere < Storable
-  BOT_REGEX = /(Google|Yahoo|Superfeedr|Stella|Baidu|Bing|mlbot|Apple-PubSub|DoCoMo|Yandex|Sosospider|PostRank)/
+  BOT_REGEX = /(Google|Yahoo|Baidu|Bing|mlbot|Apple-PubSub|DoCoMo|Yandex|Sosospider|PostRank|Superfeedr|Stella)/
   module Fields
     HTTP_METHOD = :m
     REQUEST_URI = :u
@@ -333,9 +335,14 @@ class MrBelvedere < Storable
       end
       uri
     end
+    def time_at_the_next(quantum, now=Familia.now)
+      Time.at(Familia.qnow(quantum, now)+quantum).utc
+    end
   end
 end
 Mrbelvedere = MrBelvedere
 MrB = MrBelvedere
+
+require 'mrbelvedere/jobs'
 
 # https://github.com/josh/useragent
