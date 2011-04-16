@@ -1,6 +1,8 @@
-# Mr Belvedere - 0.2 BETA
+# Mr Belvedere - 0.2 IN PROGRESS
 
 **Basic operational stats for web apps.**
+
+*Nota bene: this library is not production ready.*
 
 
 ## More Information

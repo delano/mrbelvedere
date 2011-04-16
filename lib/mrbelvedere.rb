@@ -1,5 +1,5 @@
 # encoding: utf-8
-unless defined?(BELVEDERE_LIB_HOME)
+unless defined?(BELVEDERE_HOME)
   BELVEDERE_LIB_HOME = File.expand_path(File.join(File.dirname(__FILE__), '..') )
 end
 
@@ -7,7 +7,7 @@ require 'bundler/setup'
 
 local_libs = %w{familia}
 local_libs.each { |dir| 
-  a = File.join(BELVEDERE_LIB_HOME, '..', '..', 'opensource', dir, 'lib')
+  a = File.join(BELVEDERE_LIB_HOME, '..', 'opensource', dir, 'lib')
   $:.unshift a
 }
 
@@ -16,6 +16,20 @@ require 'familia'
 require 'gibbler'
 require 'useragent'
 require 'addressable/uri'
+
+class MrBelvedere < Storable
+  module VERSION
+    def self.to_s
+      load_config
+      [@version[:MAJOR], @version[:MINOR], @version[:PATCH]].join('.')
+    end
+    alias_method :inspect, :to_s
+    def self.load_config
+      require 'yaml'
+      @version ||= YAML.load_file(File.join(BELVEDERE_LIB_HOME, 'VERSION.yml'))
+    end
+  end
+end
 
 class MrBelvedere < Storable
   BOT_REGEX = /(Google|Yahoo|Superfeedr|Stella|Baidu|Bing|mlbot|Apple-PubSub|DoCoMo|Yandex|Sosospider|PostRank)/
@@ -202,6 +216,7 @@ class MrBelvedere < Storable
     end
   end
 end
+
 # MrBelvedere.add_request 'get', 'uri', 'sessid', :cid => 'delano', :nid => '1.2.3.4', :ua => 'Firefox', :ref => 'bs.com'
 # MrBelvedere.redis.flushdb
 # load 'lib/belvedere.rb'
@@ -320,6 +335,7 @@ class MrBelvedere < Storable
     end
   end
 end
-
+Mrbelvedere = MrBelvedere
+MrB = MrBelvedere
 
 # https://github.com/josh/useragent
