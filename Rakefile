@@ -30,7 +30,7 @@ begin
     gem.add_dependency("familia")
     gem.add_dependency("gibbler")
     gem.add_dependency("useragent")
-    gem.add_dependency("addressable/uri")
+    gem.add_dependency("addressable")
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
