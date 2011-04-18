@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Delano Mandelbaum"]
-  s.date = %q{2011-04-16}
+  s.date = %q{2011-04-18}
   s.default_executable = %q{mrbelvedere}
   s.description = %q{Basic operational stats for web apps. IN PROGRESS}
   s.email = %q{delano@solutious.com}
@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
      "VERSION.yml",
      "lib/mrbelvedere.rb",
      "lib/mrbelvedere/jobs.rb",
+     "mrbelvedere.gemspec",
      "try/10_basic_try.rb"
   ]
   s.homepage = %q{http://github.com/delano/mrbelvedere}
@@ -41,20 +42,20 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<familia>, [">= 0"])
       s.add_runtime_dependency(%q<gibbler>, [">= 0"])
       s.add_runtime_dependency(%q<useragent>, [">= 0"])
-      s.add_runtime_dependency(%q<addressable/uri>, [">= 0"])
+      s.add_runtime_dependency(%q<addressable>, [">= 0"])
     else
       s.add_dependency(%q<storable>, [">= 0"])
       s.add_dependency(%q<familia>, [">= 0"])
       s.add_dependency(%q<gibbler>, [">= 0"])
       s.add_dependency(%q<useragent>, [">= 0"])
-      s.add_dependency(%q<addressable/uri>, [">= 0"])
+      s.add_dependency(%q<addressable>, [">= 0"])
     end
   else
     s.add_dependency(%q<storable>, [">= 0"])
     s.add_dependency(%q<familia>, [">= 0"])
     s.add_dependency(%q<gibbler>, [">= 0"])
     s.add_dependency(%q<useragent>, [">= 0"])
-    s.add_dependency(%q<addressable/uri>, [">= 0"])
+    s.add_dependency(%q<addressable>, [">= 0"])
   end
 end
 
