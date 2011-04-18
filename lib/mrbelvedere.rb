@@ -82,7 +82,10 @@ class MrBelvedere < Storable
       errors.unshift props  # add to the end so we can read in reverse-chronological
     end
   end
-  module ActiveStats
+  module RecentStats
+    class << self
+      attr_accessor :prefixes
+    end
     module RedisObjectHelpers
       def recent duration=15.seconds
         now = Familia.now
@@ -91,19 +94,21 @@ class MrBelvedere < Storable
       end
     end
     module ClassMethods
-      def active_stat name, common_opts={}
+      def recent_stat prefix, common_opts={}
         opts = {
           :extend => RedisObjectHelpers
         }.merge common_opts
-        zset [:active, name].join('_'), opts  # define the Redis sorted set
+        RecentStats.prefixes ||= []
+        RecentStats.prefixes << prefix
+        zset [:recent, prefix].join('_'), opts  # define the Redis sorted set
       end
     end
     def self.included obj
       super
       obj.extend ClassMethods
     end
-    def active name, uniqueid
-      self.send([:active, name].join('_')).add Familia.now.to_i, uniqueid
+    def recent name, uniqueid
+      self.send([:recent, name].join('_')).add Familia.now.to_i, uniqueid
     end
   end
   module RecordStats
@@ -113,13 +118,22 @@ class MrBelvedere < Storable
       '24hours'   => [7.days, 24.hours],
       '1hour'     => [1.days, 1.hour]
     }
+    class << self
+      attr_accessor :prefixes
+    end
+    module RedisObjectHelpers
+    end
+    
     module ClassMethods
       def record_stat prefix, common_opts={}
         BREAKDOWNS.each_pair do |suffix, args|
           opts = {
             :ttl => args.first,
-            :quantize => args.last
+            :quantize => args.last,
+            :extend => RedisObjectHelpers
           }.merge common_opts
+          RecordStats.prefixes ||= []
+          RecordStats.prefixes << prefix
           set [prefix, suffix].join('_'), opts  # define the Redis set
         end
       end
@@ -226,22 +240,22 @@ end
 class MrBelvedere < Storable
   include Familia
   include RecordStats
-  include ActiveStats
+  include RecentStats
   list :errors, :class => Hash
   hash :customers, :class => Hash
   index [:src, :grp]
   record_stat :visitors, :class => MrBelvedere::Session, :reference => true
   record_stat :customers, :class => MrBelvedere::Customer, :reference => true
   record_stat :bots, :class => MrBelvedere::Session, :reference => true
-  active_stat :visitors, :class => MrBelvedere::Session, :reference => true
-  active_stat :customers, :class => MrBelvedere::Customer, :reference => true
-  active_stat :bots, :class => MrBelvedere::Session, :reference => true
+  recent_stat :visitors, :class => MrBelvedere::Session, :reference => true
+  recent_stat :customers, :class => MrBelvedere::Customer, :reference => true
+  recent_stat :bots, :class => MrBelvedere::Session, :reference => true
   record_stat :referrers
-  active_stat :referrers
+  recent_stat :referrers
   record_stat :pages
-  active_stat :pages
+  recent_stat :pages
   record_stat :views
-  active_stat :views
+  recent_stat :views
   field :src
   field :grp
   field :uri_filters => Array
@@ -274,23 +288,23 @@ class MrBelvedere < Storable
     MrBelvedere.redis.pipelined do
       sess.add_request meth, uri   # it was already given the props
       record :pages, uri
-      active :pages, uri
+      recent :pages, uri
       if new_session && sess.ref  
         record :referrers, sess.ref
-        active :referrers, sess.ref
+        recent :referrers, sess.ref
       end
       if sess.bot?
         record :bots, sess.index
-        active :bots, sess.index
+        recent :bots, sess.index
       else
         record :visitors, sess.index
-        active :visitors, sess.index
-        active :views, event_id
+        recent :visitors, sess.index
+        recent :views, event_id
         record :views, event_id
         if sess.customer?
           sess.customer.savenx
           record :customers, sess.customer.index
-          active :customers, sess.customer.index
+          recent :customers, sess.customer.index
         end
       end
     end
@@ -343,6 +357,6 @@ end
 Mrbelvedere = MrBelvedere
 MrB = MrBelvedere
 
-require 'mrbelvedere/jobs'
+#require 'mrbelvedere/jobs'
 
 # https://github.com/josh/useragent
